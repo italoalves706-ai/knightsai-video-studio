@@ -1,0 +1,34 @@
+{
+  "scenes": [
+    {
+      "text": "GTA 6 não é para o público gamer.",
+      "audio": "pilot-audio/0.mp3",
+      "startFrame": 0,
+      "durationFrames": 180
+    },
+    {
+      "text": "Quem joga já conhece.",
+      "audio": "pilot-audio/1.mp3",
+      "startFrame": 180,
+      "durationFrames": 180
+    },
+    {
+      "text": "Então pra quem anunciar?",
+      "audio": "pilot-audio/2.mp3",
+      "startFrame": 360,
+      "durationFrames": 180
+    },
+    {
+      "text": "A marca sai do jogo.",
+      "audio": "pilot-audio/3.mp3",
+      "startFrame": 540,
+      "durationFrames": 180
+    },
+    {
+      "text": "Vice City no mundo real.",
+      "audio": "pilot-audio/4.mp3",
+      "startFrame": 720,
+      "durationFrames": 180
+    }
+  ]
+}
