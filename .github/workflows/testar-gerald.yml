@@ -1,0 +1,71 @@
+name: Testar voz Gerald - ElevenLabs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  narracao:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar chave
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: |
+          if [ -z "$ELEVENLABS_API_KEY" ]; then
+            echo "::error::Configure ELEVENLABS_API_KEY em Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+
+      - name: Gerar teste de voz
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: |
+          mkdir -p out
+          python3 - <<'PY'
+          import os, json, urllib.request, urllib.error
+          voice_id = "EAyUyHQWSSlaki2H3H3d"
+          texto = ("Mano, para pra pensar numa coisa. "
+                   "Eu acho que GTA seis nem tá sendo divulgado só pra quem joga videogame. "
+                   "Parece meio absurdo falar isso, né? "
+                   "Mas olha só: quem joga já conhece GTA. "
+                   "A Rockstar não precisa convencer essa galera de que o jogo existe.")
+          body = json.dumps({
+              "text": texto,
+              "model_id": "eleven_multilingual_v2",
+              "voice_settings": {"stability": 0.42, "similarity_boost": 0.8, "style": 0.18, "use_speaker_boost": True}
+          }).encode("utf-8")
+          url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}?output_format=mp3_44100_128"
+          req = urllib.request.Request(url, data=body, headers={
+              "xi-api-key": os.environ["ELEVENLABS_API_KEY"],
+              "Content-Type": "application/json",
+              "Accept": "audio/mpeg",
+          }, method="POST")
+          try:
+              with urllib.request.urlopen(req, timeout=90) as resp:
+                  audio = resp.read()
+          except urllib.error.HTTPError as exc:
+              msg = exc.read().decode("utf-8", errors="replace")
+              try:
+                  err = json.loads(msg)
+                  detail = err.get("detail", {})
+                  if isinstance(detail, dict):
+                      msg = str(detail.get("message") or detail.get("status") or "Erro na API")
+              except Exception:
+                  msg = "Erro na API ElevenLabs"
+              raise SystemExit(f"ElevenLabs HTTP {exc.code}: {msg[:500]}")
+          if len(audio) < 1000:
+              raise SystemExit("Audio inesperadamente pequeno")
+          with open("out/gerald-teste-gta6.mp3", "wb") as f:
+              f.write(audio)
+          print("Amostra MP3 gerada:", len(audio), "bytes")
+          PY
+
+      - name: Disponibilizar MP3
+        uses: actions/upload-artifact@v4
+        with:
+          name: gerald-teste-gta6
+          path: out/gerald-teste-gta6.mp3
+          retention-days: 7
