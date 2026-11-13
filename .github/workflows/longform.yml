@@ -1,0 +1,30 @@
+name: Render KnightsAI Longform
+on:
+  workflow_dispatch:
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          npm install
+          python -m pip install edge-tts
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Generate Portuguese narration and timing
+        run: python scripts/narrate.py
+      - name: Render longform MP4
+        run: npx remotion render src/index-long.ts KnightsAILong out/gta6-marketing.mp4 --codec h264 --crf 23 --concurrency 2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: knightsai-gta6-longform
+          path: out/gta6-marketing.mp4
+          retention-days: 7
