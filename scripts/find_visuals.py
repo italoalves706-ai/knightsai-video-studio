@@ -45,7 +45,7 @@ def main():
         try:
           data=fetch(candidate["url"])
           if len(data)>7_000_000 or len(data)<5000: continue
-          ext=".png" if data.startswith(b"\\x89PNG") else ".jpg" if data[:3]==b"\\xff\\xd8\\xff" else ".webp" if data[:4]==b"RIFF" else None
+          ext=".png" if data.startswith(b"\x89PNG") else ".jpg" if data[:3]==b"\xff\xd8\xff" else ".webp" if data[:4]==b"RIFF" else None
           if ext is None: continue
           path=f"visuals/chapter-{i}{ext}"
           ROOT.joinpath(path).write_bytes(data)
